@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHeader from '../components/system/SectionHeader.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import JournalRow from '../components/JournalRow.astro';
+import {getJournalEntries,getProjects,getSiteSettings,getWhatsappHref} from '../lib/data';
+
+const [projects,journals,settings]=await Promise.all([
+  getProjects(),
+  getJournalEntries(),
+  getSiteSettings()
+]);
+const whatsappHref=getWhatsappHref(settings);
+---
+<Base title={`${settings.name} — ${settings.role}`}>
+  <header class="pagehead intro-hero">
+    <div class="intro-lockup">
+      <a class="portrait-link" href="/about" aria-label={`Read more about ${settings.name}`}>
+        <figure class="portrait-figure">
+          <div class="portrait-frame"><img src={settings.profileImageUrl || '/portrait-placeholder.jpg'} alt={`Portrait of ${settings.name}`} width="128" height="160" loading="eager" decoding="async"/><span class="portrait-overlay" aria-hidden="true"></span></div>
+          <figcaption>FIG / 00 // About ↗</figcaption>
+        </figure>
+      </a>
+      <div class="intro-title-block">
+        <div class="eyebrow">[01 // Introduction]</div>
+        <h1>{settings.name}</h1>
+        <div class="lede">{settings.heroHeadline}</div>
+      </div>
+    </div>
+    <div class="intro-support">
+      <p>{settings.heroDescription}</p>
+      <div class="directory">
+        <div class="directory-row"><b>Location</b><span>{settings.location}</span></div>
+        <div class="directory-row"><b>Core focus</b><span>{settings.coreFocus.join(' · ')}</span></div>
+        <div class="directory-row"><b>Status</b><span class="signal">{settings.availability}</span></div>
+      </div>
+      <a class="hero-cta-link" href="#contact-cta">{settings.homeCtaLabel}</a>
+    </div>
+  </header>
+
+  <section class="section" id="work">
+    <SectionHeader number="02" title="Selected Work" meta="View all →" metaHref="/work"/>
+    {projects.slice(0,3).map((project,index)=><ProjectRow project={project} index={index+1}/>) }
+  </section>
+
+  <section class="section">
+    <SectionHeader number="03" title="Intellectual Approach"/>
+    <p class="approach">{settings.intellectualApproach}</p>
+    <div class="directory">
+      {settings.skillGroups.map((group)=><div class="directory-row"><b>{group.label}</b><span>{group.items.join(' · ')}</span></div>)}
+    </div>
+  </section>
+
+  <section class="section">
+    <SectionHeader number="04" title="Journal // Entries" meta="View all →" metaHref="/journal"/>
+    {journals.slice(0,3).map((entry,index)=><JournalRow entry={entry} index={journals.length-index}/>) }
+  </section>
+
+  <section class="section home-cta" id="contact-cta">
+    <SectionHeader number="05" title="Contact & Index"/>
+    <p class="approach">{settings.contactHeadline}</p>
+    <a class="cta-button" href="/contact">{settings.homeCtaButtonLabel}</a>
+    <div class="contact-grid">
+      <div><b>Email reference</b><a class="signal" href={`mailto:${settings.email}`}>{settings.email}</a></div>
+      <div><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{settings.github}</a></div>
+      <div><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{settings.linkedin}</a></div>
+      <div><b>WhatsApp channel</b><a href={whatsappHref} target="_blank" rel="noopener noreferrer">{settings.whatsappDisplay}</a></div>
+    </div>
+  </section>
+</Base>

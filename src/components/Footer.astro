@@ -1,0 +1,5 @@
+---
+import {getSiteSettings} from '../lib/data';
+const settings=await getSiteSettings();
+---
+<footer class="footer"><a class="to-top" href="#top">Go to top ↑</a><span>{settings.footerCopyright}</span></footer>

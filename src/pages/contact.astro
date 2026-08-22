@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHeader from '../components/system/SectionHeader.astro';
+import ContactForm from '../components/ContactForm';
+import {getSiteSettings,getWhatsappHref} from '../lib/data';
+const settings=await getSiteSettings();
+const whatsappHref=getWhatsappHref(settings);
+---
+<Base title={`Contact — ${settings.name}`}>
+  <header class="pagehead">
+    <div class="eyebrow">[01 // Communications Gateway]</div>
+    <h1>{settings.contactTitle}</h1>
+    <div class="lede">{settings.contactHeadline}</div>
+  </header>
+
+  <section class="section">
+    <SectionHeader number="02" title="Send a Message" meta="Direct Pipeline"/>
+    <ContactForm directEmail={settings.email} client:load/>
+  </section>
+
+  <section class="section">
+    <SectionHeader number="03" title="Other Ways to Connect" meta="System Channels"/>
+    <div class="directory">
+      <div class="directory-row"><b>Email reference</b><a class="signal" href={`mailto:${settings.email}`}>{settings.email}</a></div>
+      <div class="directory-row"><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{settings.github}</a></div>
+      <div class="directory-row"><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{settings.linkedin}</a></div>
+      <div class="directory-row"><b>WhatsApp channel</b><a href={whatsappHref} target="_blank" rel="noopener noreferrer">{settings.whatsappDisplay}</a></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <SectionHeader number="04" title="Availability Log" meta="Updated currently"/>
+    <div class="availability">
+      <div class="note-title">Status record // Live</div>
+      <div class="note-row"><b>Availability</b><span>{settings.contactIntro}</span></div>
+      <div class="note-row"><b>Response time</b><span>{settings.responseTime}</span></div>
+      <div class="note-row"><b>Timezone</b><span>{settings.timezone}</span></div>
+    </div>
+  </section>
+</Base>

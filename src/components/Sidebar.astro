@@ -1,0 +1,26 @@
+---
+import {getSiteSettings} from '../lib/data';
+import Icon from './Icon.astro';
+const settings=await getSiteSettings();
+const path=Astro.url.pathname;
+const links=[['01','Intro','/'],['02','Work','/work'],['03','About','/about'],['04','Journal','/journal'],['05','Contact','/contact']];
+const active=(href:string)=>href==='/'?path==='/':path.startsWith(href);
+---
+<aside class="sidebar">
+  <a class="brand" href="/"><strong>{settings.name}</strong><small>{settings.role}</small></a>
+  <div class="presence"><i></i>{settings.location} // Active</div>
+  <nav class="nav">{links.map(([n,l,h])=><a href={h} class:list={{active:active(h)}}><span>[{n}]</span>{l}</a>)}<a class="nav-resume" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a></nav>
+  <div class="sidefoot">System status // OK<br/>Coords // 22.5726° N, 88.3639° E<br/>Edition // 2026.V1
+    <div class="socials">
+      <a href={settings.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Icon name="github"/><span>GitHub</span></a>
+      <a href={settings.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Icon name="linkedin"/><span>LinkedIn</span></a>
+    </div>
+  </div>
+</aside>
+<div class="mobilebar">
+  <div class="mobilebar-head">
+    <a class="brand" href="/"><strong>{settings.name}</strong></a>
+    <a class="mobile-resume" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a>
+  </div>
+  <nav aria-label="Primary navigation">{links.map(([n,l,h])=><a href={h} class:list={{active:active(h)}}><span>[{n}]</span>{l}</a>)}</nav>
+</div>

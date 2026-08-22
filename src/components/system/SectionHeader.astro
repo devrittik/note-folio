@@ -1,0 +1,10 @@
+---
+interface Props { number: string; title: string; meta?: string; metaHref?: string; }
+const { number, title, meta, metaHref } = Astro.props;
+---
+<div class="section-head">
+  <div class="section-label">[{number} // {title}]</div>
+  {meta && (metaHref
+    ? <a class="section-meta section-meta-link transition-mechanical" href={metaHref}>{meta}</a>
+    : <div class="section-meta">{meta}</div>)}
+</div>

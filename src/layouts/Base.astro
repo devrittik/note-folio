@@ -1,0 +1,25 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsApp from '../components/WhatsApp.astro';
+import {getSiteSettings} from '../lib/data';
+import '../styles/global.css';
+
+interface Props { title: string; description?: string }
+const settings=await getSiteSettings();
+const {title,description=settings.heroDescription}=Astro.props;
+const canonical=new URL(Astro.url.pathname,Astro.site);
+const jsonLd={
+  "@context":"https://schema.org",
+  "@type":"ProfilePage",
+  mainEntity:{
+    "@type":"Person",
+    name:settings.name,
+    jobTitle:settings.role,
+    email:settings.email,
+    url:canonical.origin,
+    address:{"@type":"PostalAddress",addressLocality:settings.location,addressCountry:'IN'}
+  }
+};
+---
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content={description}/><link rel="canonical" href={canonical}/><meta name="theme-color" content="#f2f0ea"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><title>{title}</title><script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script></head><body id="top"><div class="shell"><Sidebar/><span class="registration tl">＋</span><span class="registration tr">＋</span><main class="main"><slot/><Footer/></main><WhatsApp/></div></body></html>

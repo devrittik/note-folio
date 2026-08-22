@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import SectionHeader from '../../components/system/SectionHeader.astro';
+import ImageCarousel from '../../components/ImageCarousel';
+import {getJournalBySlug,getSiteSettings} from '../../lib/data';
+const [entry,settings]=await Promise.all([
+  getJournalBySlug(Astro.params.slug || ''),
+  getSiteSettings()
+]);
+if(!entry) return Astro.redirect('/404');
+const journalImages=entry.body.filter((item)=>item.type==='image');
+const journalParagraphs=entry.body.filter((item)=>item.type==='paragraph');
+const articleLd=entry.schemaType==='Article'?{
+  "@context":"https://schema.org",
+  "@type":"Article",
+  headline:entry.title,
+  datePublished:entry.date,
+  author:{"@type":"Person",name:settings.name}
+}:null;
+---
+<Base title={`${entry.title} — Journal`} description={entry.excerpt}>
+  {articleLd&&<script is:inline type="application/ld+json" set:html={JSON.stringify(articleLd)}></script>}
+  <header class="pagehead">
+    <div class="eyebrow">[Entry // {entry.date.slice(0,7).replace('-','.')} · {entry.readTime} min]</div>
+    <h1 class:list={['entry-title',{'is-long':entry.title.length>38}]}>{entry.title}</h1>
+    <p class="case-subtitle">{entry.excerpt}</p>
+    <div style="margin-top:25px">{entry.tags.map((tag)=><span class="tag">{tag}</span>)}</div>
+  </header>
+  <article class="section article">
+    <SectionHeader number="01" title="Transmission"/>
+    {journalImages.length>0&&<ImageCarousel images={journalImages} label="JOURNAL FIGURES" client:visible />}
+    {journalParagraphs.map((paragraph)=><p>{paragraph.text}</p>)}
+  </article>
+</Base>

@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import SectionHeader from '../../components/system/SectionHeader.astro';
+import ImageCarousel from '../../components/ImageCarousel';
+import {getProjectBySlug,getProjects} from '../../lib/data';
+const project=await getProjectBySlug(Astro.params.slug || '');
+if(!project) return Astro.redirect('/404');
+const projects=await getProjects();
+const index=projects.findIndex((item)=>item.slug===project.slug)+1;
+---
+<Base title={`${project.title} — Engineering Case Study`} description={project.oneLiner}>
+  <header class="case-hero">
+    <div class="case-meta"><span>Project // {String(index).padStart(2,'0')}</span><span class={project.status==='live'?'status live':'status built'}>Status // <b>{project.status}</b></span><span>Year // {project.year}</span></div>
+    <h1 class:list={['case-title',{'is-long':project.title.length>20}]}>{project.title}</h1>
+    <div class="case-subtitle">{project.oneLiner}</div>
+  </header>
+
+  {project.screenshots.length>0&&<div class="section project-screenshot-section">
+    <ImageCarousel images={project.screenshots} label="PROJECT SCREENSHOTS" client:visible />
+  </div>}
+
+  <section class="section"><SectionHeader number="01" title="The Problem"/><p class="body-copy">{project.problem}</p></section>
+  <section class="section"><SectionHeader number="02" title="The System"/><div class="system-flow">{project.system.map((step,stepIndex)=><><div class="system-node"><b>{step.title}</b><span>{step.sub}</span></div>{stepIndex < project.system.length-1 ? <div class="system-arrow">→</div> : null}</>)}</div></section>
+  <section class="section"><SectionHeader number="03" title="The Build"/><ul class="feature-list">{project.buildFeatures.map((feature)=><li>{feature}</li>)}</ul><div style="margin-top:25px">{project.techStack.map((technology)=><span class="tag">{technology}</span>)}</div></section>
+  <section class="section"><SectionHeader number="04" title="Engineering Notes"/>{project.notes.map((note,noteIndex)=><article class="note-card"><div class="note-title">Note // {String(noteIndex+1).padStart(3,'0')}</div><div class="note-row"><b>Challenge</b><span>{note.challenge}</span></div><div class="note-row"><b>Decision</b><span>{note.decision}</span></div><div class="note-row"><b>Tradeoff</b><span>{note.tradeoff}</span></div></article>)}</section>
+  <section class="section"><SectionHeader number="05" title="Result" meta="Production Record"/><div class="metric-grid">{project.metrics.map((metric)=><div class="metric">{metric}</div>)}</div>{(project.liveUrl||project.githubUrl)&&<div style="margin-top:28px">{project.liveUrl&&<a class="button-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live Demo ↗</a>}&nbsp;&nbsp;{project.githubUrl&&<a class="button-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer">GitHub Repository ↗</a>}</div>}</section>
+</Base>

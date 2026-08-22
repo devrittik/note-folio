@@ -1,0 +1,7 @@
+---
+import {getSiteSettings,getWhatsappHref} from '../lib/data';
+import Icon from './Icon.astro';
+const settings=await getSiteSettings();
+const whatsappHref=getWhatsappHref(settings);
+---
+<a class="whatsapp transition-mechanical" aria-label="Message on WhatsApp" href={whatsappHref} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={20}/></a>

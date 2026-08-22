@@ -1,0 +1,12 @@
+---
+import type {Journal} from '../lib/data/types';
+interface Props{entry:Journal;index:number}
+const {entry,index}=Astro.props;
+const date=entry.date.slice(0,7).replace('-','.');
+---
+<article class="journal-row">
+  <a class="card-hit-area" href={`/journal/${entry.slug}`} aria-label={`Read ${entry.title}`}></a>
+  <div class="journal-top"><span class="project-index signal">Entry // {String(index).padStart(2,'0')}</span><h3>{entry.title}</h3><span class="journal-date meta">Date // <b class="signal">{date}</b></span></div>
+  <p>{entry.excerpt}</p>
+  <div class="row-foot"><div>{entry.tags.map(t=><span class="tag">{t}</span>)}</div><span class="button-link">Read Entry ↗</span></div>
+</article>

@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import SectionHeader from '../../components/system/SectionHeader.astro';
+import JournalRow from '../../components/JournalRow.astro';
+import {getJournalEntries,getSiteSettings} from '../../lib/data';
+const [journals,settings]=await Promise.all([getJournalEntries(),getSiteSettings()]);
+const featured=journals.find((entry)=>entry.featured) || journals[0];
+---
+<Base title={`Journal — ${settings.name}`}>
+  <header class="pagehead">
+    <div class="eyebrow">[01 // Journal Entry Deck]</div>
+    <h1>{settings.journalTitle}</h1>
+    <div class="lede">{settings.journalIntro}</div>
+  </header>
+
+  {featured&&<section class="section">
+    <SectionHeader number="02" title="Featured Entry" meta="Latest Broadcast"/>
+    <article class="featured dashed">
+      <a class="card-hit-area" href={`/journal/${featured.slug}`} aria-label={`Read ${featured.title}`}></a>
+      <span class="meta signal">Featured // Entry / {String(journals.length-journals.indexOf(featured)).padStart(2,'0')}</span>
+      <h2>{featured.title}</h2><p>{featured.excerpt}</p>
+      <div class="row-foot"><div>{featured.tags.map((tag)=><span class="tag">{tag}</span>)}</div><span class="button-link">Read Entry ↗</span></div>
+    </article>
+  </section>}
+
+  <section class="section">
+    <SectionHeader number="03" title="Archived Journal Entries" meta={`${journals.length} entries total`}/>
+    {journals.map((entry,index)=><JournalRow entry={entry} index={journals.length-index}/>) }
+  </section>
+</Base>

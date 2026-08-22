@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionHeader from '../components/system/SectionHeader.astro';
+import {getSiteSettings} from '../lib/data';
+const settings=await getSiteSettings();
+---
+<Base title={`About — ${settings.name}`}>
+  <header class="pagehead">
+    <div class="eyebrow">[01 // About the Engineer]</div>
+    <h1 class="multiline-title">{settings.aboutTitle}</h1>
+    <div class="lede">{settings.aboutHeadline}</div>
+  </header>
+
+  <section class="section">
+    <SectionHeader number="02" title="Professional Summary"/>
+    <p class="approach">{settings.aboutIntro}</p>
+    <a class="cta-button resume-cta" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a>
+  </section>
+
+  <section class="section">
+    <SectionHeader number="03" title="Technical Directory"/>
+    <div class="directory">
+      {settings.skillGroups.map((group)=><div class="directory-row"><b>{group.label}</b><span>{group.items.join(' · ')}</span></div>)}
+    </div>
+  </section>
+
+  <section class="section">
+    <SectionHeader number="04" title="Education Log"/>
+    {settings.education.map((record)=><article class="note-card">
+      <div class="note-title">{record.period} // {record.institution}</div>
+      <p>{record.qualification}{record.detail ? ` — ${record.detail}` : ''}</p>
+    </article>)}
+  </section>
+
+  <section class="section">
+    <SectionHeader number="05" title="Certifications"/>
+    <div class="certification-list">
+      {settings.certifications.map((certificate,index)=><div class="certification-row">
+        <span class="meta">Certificate // {String(index+1).padStart(2,'0')}</span>
+        <strong>{certificate.name}</strong>
+        <span>{certificate.issuer}</span>
+        {certificate.url?<a class="certificate-link" href={certificate.url} target="_blank" rel="noopener noreferrer">View Certificate ↗</a>:null}
+      </div>)}
+    </div>
+  </section>
+</Base>
