@@ -54,6 +54,6 @@ npm run build
 
 ## Copyright & attribution
 
-© 2026 Mr. Developer. All rights reserved.
+© 2026 Rittik Chakraborty. All rights reserved.
 
-The visual system, Engineering Notebook concept, written content, and implementation may not be copied, redistributed, or presented as original work without permission. Forks or adaptations must retain visible attribution: **“Designed and engineered by Mr. Developer.”** Third-party packages and trademarks remain subject to their respective licenses.
+The visual system, Engineering Notebook concept, written content, and implementation may not be copied, redistributed, or presented as original work without permission. Forks or adaptations must retain visible attribution: **“Designed and engineered by Rittik Chakraborty.”** Third-party packages and trademarks remain subject to their respective licenses.
