@@ -75,6 +75,7 @@ const SETTINGS_FIELDS = `
   "defaultSeoImageAlt": defaultSeoImage.alt,
   "defaultSeoImageWidth": defaultSeoImage.asset->metadata.dimensions.width,
   "defaultSeoImageHeight": defaultSeoImage.asset->metadata.dimensions.height,
+  "faviconUrl": favicon.asset->url,
   twitterHandle,
   heroHeadline,
   heroDescription,

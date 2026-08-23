@@ -82,6 +82,13 @@ export const siteSettingsSchema = defineType({
       description: 'Recommended: 1200 × 630 px PNG or JPEG.',
       fields: [defineField({ name: 'alt', title: 'Alternative text', type: 'string' })]
     }),
+    defineField({
+      name: 'favicon',
+      title: 'Browser favicon',
+      type: 'image',
+      group: 'seo',
+      description: 'Use a square PNG, ideally 64 × 64 px or larger.'
+    }),
 
     defineField({ name: 'heroHeadline', type: 'text', rows: 2, group: 'home', validation: (Rule) => Rule.required() }),
     defineField({ name: 'heroDescription', type: 'text', rows: 3, group: 'home', validation: (Rule) => Rule.required() }),

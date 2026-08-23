@@ -47,6 +47,24 @@ async function buildSettingsDocument(): Promise<Record<string, unknown> & { _id:
     document.resumeFile = { _type: 'file', asset: { _type: 'reference', _ref: asset._id } };
   }
 
+  const ogPath = resolve('public/og-default.png');
+  if (existsSync(ogPath)) {
+    const asset = await client.assets.upload('image', createReadStream(ogPath), {
+      filename: 'og-default.png', contentType: 'image/png'
+    });
+    document.defaultSeoImage = {
+      _type: 'image', asset: { _type: 'reference', _ref: asset._id }, alt: `${settings.name} portfolio preview`
+    };
+  }
+
+  const faviconPath = resolve('public/favicon.png');
+  if (existsSync(faviconPath)) {
+    const asset = await client.assets.upload('image', createReadStream(faviconPath), {
+      filename: 'favicon.png', contentType: 'image/png'
+    });
+    document.favicon = { _type: 'image', asset: { _type: 'reference', _ref: asset._id } };
+  }
+
   return document;
 }
 

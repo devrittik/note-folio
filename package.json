@@ -16,7 +16,8 @@
     "studio:deploy": "sanity deploy",
     "sanity:seed": "tsx scripts/seed-sanity.ts",
     "sanity:migrate-journal": "tsx scripts/migrate-journal-body.ts",
-    "sanity:migrate-journal:dry": "tsx scripts/migrate-journal-body.ts --dry-run"
+    "sanity:migrate-journal:dry": "tsx scripts/migrate-journal-body.ts --dry-run",
+    "sanity:sync-assets": "tsx scripts/sync-sanity-assets.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

@@ -117,6 +117,7 @@ export const SiteSettingsSchema = z.object({
   defaultSeoImageAlt: optionalString,
   defaultSeoImageWidth: optionalNumber,
   defaultSeoImageHeight: optionalNumber,
+  faviconUrl: optionalUrl,
   twitterHandle: optionalString,
   heroHeadline: z.string(),
   heroDescription: z.string(),

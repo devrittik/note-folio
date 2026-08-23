@@ -48,6 +48,7 @@ Configuration is documented in `.env.example`. Useful maintenance commands:
 ```bash
 npm run sanity:migrate-journal:dry
 npm run sanity:migrate-journal
+npm run sanity:sync-assets # OG image + favicon only; no dummy content
 npm run build
 ```
 

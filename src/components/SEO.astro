@@ -45,6 +45,9 @@ const selectedImage=image || settings.defaultSeoImageUrl || '/og-default.png';
 const socialImage=new URL(selectedImage,Astro.site);
 if(!['localhost','127.0.0.1'].includes(socialImage.hostname)) socialImage.protocol='https:';
 const socialImageAlt=imageAlt || settings.defaultSeoImageAlt || `${settings.name} — ${settings.role}`;
+const favicon=settings.faviconUrl || '/favicon.svg';
+const faviconUrl=new URL(favicon,Astro.site);
+const faviconType=faviconUrl.pathname.toLowerCase().endsWith('.svg')?'image/svg+xml':faviconUrl.pathname.toLowerCase().endsWith('.ico')?'image/x-icon':'image/png';
 const imagePath=socialImage.pathname.toLowerCase();
 const imageMime=imagePath.endsWith('.png')?'image/png':imagePath.endsWith('.webp')?'image/webp':imagePath.match(/\.jpe?g$/)?'image/jpeg':undefined;
 const socialWidth=imageWidth || settings.defaultSeoImageWidth || 1200;
@@ -60,7 +63,7 @@ const json=(value:Record<string,unknown>)=>JSON.stringify(value).replace(/</g,'\
 <meta name="robots" content={robots}/>
 <meta name="googlebot" content={robots}/>
 <link rel="canonical" href={canonical.toString()}/>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href={faviconUrl.toString()} type={faviconType}/>
 <meta name="theme-color" content="#f2f0ea"/>
 
 <meta property="og:type" content={type}/>
