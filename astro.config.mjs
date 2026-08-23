@@ -33,7 +33,9 @@ export default defineConfig({
   ],
   output: 'server',
   trailingSlash: 'never',
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: { enabled: true }
+  }),
   site,
   vite: {
     server: {

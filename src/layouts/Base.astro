@@ -3,6 +3,7 @@ import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import WhatsApp from '../components/WhatsApp.astro';
 import SEO from '../components/SEO.astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
 import {getSiteSettings} from '../lib/data';
 import '../styles/global.css';
 
@@ -94,5 +95,6 @@ if(!noindex&&Astro.url.pathname==='/') structuredData.push({
       <main class="main" id="main-content"><slot/><Footer/></main>
       <WhatsApp/>
     </div>
+    <SpeedInsights/>
   </body>
 </html>
