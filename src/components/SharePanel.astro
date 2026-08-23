@@ -1,0 +1,17 @@
+---
+import Icon from './Icon.astro';
+interface Props { title: string; path: string }
+const {title,path}=Astro.props;
+const canonical=new URL(path,Astro.site).toString();
+const encodedUrl=encodeURIComponent(canonical);
+const encodedTitle=encodeURIComponent(title);
+const links=[
+  {label:'Share on X',icon:'x' as const,href:`https://x.com/intent/post?text=${encodedTitle}&url=${encodedUrl}`},
+  {label:'Share on Reddit',icon:'reddit' as const,href:`https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedTitle}`},
+  {label:'Share on LinkedIn',icon:'linkedin' as const,href:`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
+];
+---
+<section class="share-panel" aria-label="Share this page">
+  <div class="sidebar-heading">[SHARE // TRANSMIT]</div>
+  <div class="share-links">{links.map((link)=><a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={link.label} title={link.label}><Icon name={link.icon} size={16}/></a>)}</div>
+</section>

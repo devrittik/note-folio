@@ -1,10 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SectionHeader from '../../components/system/SectionHeader.astro';
-import JournalRow from '../../components/JournalRow.astro';
+import ArchivePagination from '../../components/ArchivePagination';
 import {getJournalEntries,getSiteSettings} from '../../lib/data';
 const [journals,settings]=await Promise.all([getJournalEntries(),getSiteSettings()]);
 const featured=journals.find((entry)=>entry.featured) || journals[0];
+const requestedPage=Number(Astro.url.searchParams.get('page') || '1');
+const initialPage=Number.isInteger(requestedPage)&&requestedPage>0?requestedPage:1;
+const archiveItems=journals.map((entry,index)=>({
+  href:`/journal/${entry.slug}`,
+  sequence:journals.length-index,
+  title:entry.title,
+  excerpt:entry.excerpt,
+  tags:entry.tags,
+  date:entry.date.slice(0,7).replace('-','.')
+}));
 ---
 <Base title={`Journal — ${settings.name}`}>
   <header class="pagehead">
@@ -25,6 +35,6 @@ const featured=journals.find((entry)=>entry.featured) || journals[0];
 
   <section class="section">
     <SectionHeader number="03" title="Archived Journal Entries" meta={`${journals.length} entries total`}/>
-    {journals.map((entry,index)=><JournalRow entry={entry} index={journals.length-index}/>) }
+    <ArchivePagination kind="journal" items={archiveItems} initialPage={initialPage} pageSize={4} client:load />
   </section>
 </Base>

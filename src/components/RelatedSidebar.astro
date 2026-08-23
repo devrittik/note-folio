@@ -1,0 +1,15 @@
+---
+interface RelatedItem { href:string; title:string; meta:string; tags:string[] }
+interface Props { title:string; items:RelatedItem[] }
+const {title,items}=Astro.props;
+---
+<section class="related-panel" aria-label={title}>
+  <div class="section-head related-head"><div class="section-label signal">[RELATED // {title}]</div></div>
+  <div class="related-list">
+    {items.map((item,index)=><a class="related-item" href={item.href}>
+      <span class="meta">Record // {String(index+1).padStart(2,'0')} · {item.meta}</span>
+      <strong>{item.title}</strong>
+      <span class="related-tags">{item.tags.slice(0,3).join(' · ')}</span>
+    </a>)}
+  </div>
+</section>

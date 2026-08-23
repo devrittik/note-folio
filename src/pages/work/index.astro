@@ -1,9 +1,19 @@
 ---
 import Base from '../../layouts/Base.astro';
 import SectionHeader from '../../components/system/SectionHeader.astro';
-import ProjectRow from '../../components/ProjectRow.astro';
+import ArchivePagination from '../../components/ArchivePagination';
 import {getProjects,getSiteSettings} from '../../lib/data';
 const [projects,settings]=await Promise.all([getProjects(),getSiteSettings()]);
+const requestedPage=Number(Astro.url.searchParams.get('page') || '1');
+const initialPage=Number.isInteger(requestedPage)&&requestedPage>0?requestedPage:1;
+const archiveItems=projects.map((project,index)=>({
+  href:`/work/${project.slug}`,
+  sequence:index+1,
+  title:project.title,
+  excerpt:project.oneLiner,
+  tags:project.techStack,
+  status:project.status
+}));
 ---
 <Base title={`Selected Work — ${settings.name}`}>
   <header class="pagehead">
@@ -13,6 +23,6 @@ const [projects,settings]=await Promise.all([getProjects(),getSiteSettings()]);
   </header>
   <section class="section">
     <SectionHeader number="02" title="Project Records" meta={`${projects.length} systems total`}/>
-    {projects.map((project,index)=><ProjectRow project={project} index={index+1}/>) }
+    <ArchivePagination kind="projects" items={archiveItems} initialPage={initialPage} pageSize={4} client:load />
   </section>
 </Base>

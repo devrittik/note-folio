@@ -2,14 +2,24 @@
 import Base from '../../layouts/Base.astro';
 import SectionHeader from '../../components/system/SectionHeader.astro';
 import ImageCarousel from '../../components/ImageCarousel';
-import {getJournalBySlug,getSiteSettings} from '../../lib/data';
-const [entry,settings]=await Promise.all([
+import RelatedSidebar from '../../components/RelatedSidebar.astro';
+import SharePanel from '../../components/SharePanel.astro';
+import {rankRelated} from '../../lib/content/related';
+import {getJournalBySlug,getJournalEntries,getSiteSettings} from '../../lib/data';
+const [entry,settings,journals]=await Promise.all([
   getJournalBySlug(Astro.params.slug || ''),
-  getSiteSettings()
+  getSiteSettings(),
+  getJournalEntries()
 ]);
 if(!entry) return Astro.redirect('/404');
 const journalImages=entry.body.filter((item)=>item.type==='image');
 const journalParagraphs=entry.body.filter((item)=>item.type==='paragraph');
+const relatedEntries=rankRelated(entry,journals.filter((item)=>item.slug!==entry.slug),(item)=>item.tags).map((item)=>({
+  href:`/journal/${item.slug}`,
+  title:item.title,
+  meta:item.date.slice(0,7).replace('-','.'),
+  tags:item.tags
+}));
 const articleLd=entry.schemaType==='Article'?{
   "@context":"https://schema.org",
   "@type":"Article",
@@ -20,15 +30,23 @@ const articleLd=entry.schemaType==='Article'?{
 ---
 <Base title={`${entry.title} — Journal`} description={entry.excerpt}>
   {articleLd&&<script is:inline type="application/ld+json" set:html={JSON.stringify(articleLd)}></script>}
-  <header class="pagehead">
+  <header class="pagehead detail-header">
     <div class="eyebrow">[Entry // {entry.date.slice(0,7).replace('-','.')} · {entry.readTime} min]</div>
     <h1 class:list={['entry-title',{'is-long':entry.title.length>38}]}>{entry.title}</h1>
     <p class="case-subtitle">{entry.excerpt}</p>
     <div style="margin-top:25px">{entry.tags.map((tag)=><span class="tag">{tag}</span>)}</div>
   </header>
-  <article class="section article">
-    <SectionHeader number="01" title="Transmission"/>
-    {journalImages.length>0&&<ImageCarousel images={journalImages} label="JOURNAL FIGURES" client:visible />}
-    {journalParagraphs.map((paragraph)=><p>{paragraph.text}</p>)}
-  </article>
+
+  <div class="detail-layout">
+    <article class="section article detail-main">
+      <SectionHeader number="01" title="Transmission"/>
+      {journalImages.length>0&&<ImageCarousel images={journalImages} label="JOURNAL FIGURES" client:visible />}
+      {journalParagraphs.map((paragraph)=><p>{paragraph.text}</p>)}
+      <div class="detail-share"><SharePanel title={entry.title} path={Astro.url.pathname}/></div>
+    </article>
+
+    <aside class="detail-sidebar">
+      <RelatedSidebar title="SIMILAR ENTRIES" items={relatedEntries}/>
+    </aside>
+  </div>
 </Base>
