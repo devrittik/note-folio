@@ -17,6 +17,8 @@ export const settings = SiteSettingsSchema.parse({
   coreFocus: ['Full-stack', 'Real-time', 'AI'],
   homeCtaLabel: 'Start a Conversation ↓',
   homeCtaButtonLabel: 'Open Contact Gateway ↗',
+  favoriteQuote: 'Build systems that remain understandable when the easy assumptions fail.',
+  favoriteQuoteAuthor: 'Personal note',
   intellectualApproach: 'I build tools that connect people and systems in real time. My work sits at the intersection of product engineering and infrastructure — where reliability meets interactivity.',
   workTitle: 'Selected Work',
   workIntro: 'Production systems engineered across real-time, AI, and browser-native environments.',

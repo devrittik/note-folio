@@ -4,6 +4,7 @@ import SectionHeader from '../components/system/SectionHeader.astro';
 import ProjectRow from '../components/ProjectRow.astro';
 import JournalRow from '../components/JournalRow.astro';
 import {getJournalEntries,getProjects,getSiteSettings,getWhatsappHref} from '../lib/data';
+import {githubDisplayPath,linkedinDisplayPath} from '../lib/content/profileLinks';
 
 const [projects,journals,settings]=await Promise.all([
   getProjects(),
@@ -11,13 +12,15 @@ const [projects,journals,settings]=await Promise.all([
   getSiteSettings()
 ]);
 const whatsappHref=getWhatsappHref(settings);
+const githubLabel=githubDisplayPath(settings.github);
+const linkedinLabel=linkedinDisplayPath(settings.linkedin);
 ---
 <Base title={`${settings.name} — ${settings.role}`}>
   <header class="pagehead intro-hero">
     <div class="intro-lockup">
       <a class="portrait-link" href="/about" aria-label={`Read more about ${settings.name}`}>
         <figure class="portrait-figure">
-          <div class="portrait-frame"><img src={settings.profileImageUrl || '/portrait-placeholder.jpg'} alt={`Portrait of ${settings.name}`} width={settings.profileImageWidth || 128} height={settings.profileImageHeight || 160} loading="eager" fetchpriority="high" decoding="async"/><span class="portrait-overlay" aria-hidden="true"></span></div>
+          <div class="portrait-frame"><img src={settings.profileImageUrl || '/portrait-placeholder.jpg'} alt={`Portrait of ${settings.name}`} width={settings.profileImageWidth || 128} height={settings.profileImageHeight || 160} loading="eager" fetchpriority="high" decoding="async"/><span class="portrait-overlay" aria-hidden="true"></span><span class="portrait-inner-border" aria-hidden="true"></span></div>
           <figcaption>FIG / 00 // About ↗</figcaption>
         </figure>
       </a>
@@ -62,9 +65,16 @@ const whatsappHref=getWhatsappHref(settings);
     <a class="cta-button" href="/contact">{settings.homeCtaButtonLabel}</a>
     <div class="contact-grid">
       <div><b>Email reference</b><a class="signal" href={`mailto:${settings.email}`}>{settings.email}</a></div>
-      <div><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{settings.github}</a></div>
-      <div><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{settings.linkedin}</a></div>
+      <div><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{githubLabel}</a></div>
+      <div><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{linkedinLabel}</a></div>
       <div><b>WhatsApp channel</b><a href={whatsappHref} target="_blank" rel="noopener noreferrer">{settings.whatsappDisplay}</a></div>
     </div>
   </section>
+
+  {settings.favoriteQuote&&<section class="quote-section" aria-label="Favorite quote">
+    <figure class="quote-figure">
+      <blockquote><p>{settings.favoriteQuote}</p></blockquote>
+      {settings.favoriteQuoteAuthor&&<figcaption>— {settings.favoriteQuoteAuthor}</figcaption>}
+    </figure>
+  </section>}
 </Base>

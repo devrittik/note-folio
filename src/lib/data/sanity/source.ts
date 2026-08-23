@@ -82,6 +82,8 @@ const SETTINGS_FIELDS = `
   coreFocus,
   homeCtaLabel,
   homeCtaButtonLabel,
+  favoriteQuote,
+  favoriteQuoteAuthor,
   intellectualApproach,
   workTitle,
   workIntro,

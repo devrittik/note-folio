@@ -124,6 +124,8 @@ export const SiteSettingsSchema = z.object({
   coreFocus: z.array(z.string()),
   homeCtaLabel: z.string(),
   homeCtaButtonLabel: z.string(),
+  favoriteQuote: optionalString,
+  favoriteQuoteAuthor: optionalString,
   intellectualApproach: z.string(),
   workTitle: z.string(),
   workIntro: z.string(),

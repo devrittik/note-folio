@@ -3,9 +3,12 @@ import Base from '../layouts/Base.astro';
 import SectionHeader from '../components/system/SectionHeader.astro';
 import ContactForm from '../components/ContactForm';
 import {getSiteSettings,getWhatsappHref} from '../lib/data';
+import {githubDisplayPath,linkedinDisplayPath} from '../lib/content/profileLinks';
 import {breadcrumbSchema} from '../lib/seo/schema';
 const settings=await getSiteSettings();
 const whatsappHref=getWhatsappHref(settings);
+const githubLabel=githubDisplayPath(settings.github);
+const linkedinLabel=linkedinDisplayPath(settings.linkedin);
 const title=`Contact ${settings.name} | ${settings.role}`;
 const jsonLd=[
   breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Contact',path:'/contact'}]),
@@ -28,8 +31,8 @@ const jsonLd=[
     <SectionHeader number="03" title="Other Ways to Connect" meta="System Channels"/>
     <div class="directory">
       <div class="directory-row"><b>Email reference</b><a class="signal" href={`mailto:${settings.email}`}>{settings.email}</a></div>
-      <div class="directory-row"><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{settings.github}</a></div>
-      <div class="directory-row"><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{settings.linkedin}</a></div>
+      <div class="directory-row"><b>GitHub endpoint</b><a href={settings.github} target="_blank" rel="noopener noreferrer">{githubLabel}</a></div>
+      <div class="directory-row"><b>Professional index</b><a href={settings.linkedin} target="_blank" rel="noopener noreferrer">{linkedinLabel}</a></div>
       <div class="directory-row"><b>WhatsApp channel</b><a href={whatsappHref} target="_blank" rel="noopener noreferrer">{settings.whatsappDisplay}</a></div>
     </div>
   </section>
