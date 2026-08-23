@@ -17,7 +17,7 @@ const whatsappHref=getWhatsappHref(settings);
     <div class="intro-lockup">
       <a class="portrait-link" href="/about" aria-label={`Read more about ${settings.name}`}>
         <figure class="portrait-figure">
-          <div class="portrait-frame"><img src={settings.profileImageUrl || '/portrait-placeholder.jpg'} alt={`Portrait of ${settings.name}`} width="128" height="160" loading="eager" decoding="async"/><span class="portrait-overlay" aria-hidden="true"></span></div>
+          <div class="portrait-frame"><img src={settings.profileImageUrl || '/portrait-placeholder.jpg'} alt={`Portrait of ${settings.name}`} width={settings.profileImageWidth || 128} height={settings.profileImageHeight || 160} loading="eager" fetchpriority="high" decoding="async"/><span class="portrait-overlay" aria-hidden="true"></span></div>
           <figcaption>FIG / 00 // About ↗</figcaption>
         </figure>
       </a>

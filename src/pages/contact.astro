@@ -3,10 +3,16 @@ import Base from '../layouts/Base.astro';
 import SectionHeader from '../components/system/SectionHeader.astro';
 import ContactForm from '../components/ContactForm';
 import {getSiteSettings,getWhatsappHref} from '../lib/data';
+import {breadcrumbSchema} from '../lib/seo/schema';
 const settings=await getSiteSettings();
 const whatsappHref=getWhatsappHref(settings);
+const title=`Contact ${settings.name} | ${settings.role}`;
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Contact',path:'/contact'}]),
+  {'@context':'https://schema.org','@type':'ContactPage',name:title,url:new URL('/contact',Astro.site),description:settings.contactHeadline,mainEntity:{'@id':`${new URL('/',Astro.site)}#person`}}
+];
 ---
-<Base title={`Contact — ${settings.name}`}>
+<Base title={title} description={settings.contactHeadline} canonicalPath="/contact" jsonLd={jsonLd}>
   <header class="pagehead">
     <div class="eyebrow">[01 // Communications Gateway]</div>
     <h1>{settings.contactTitle}</h1>
@@ -15,7 +21,7 @@ const whatsappHref=getWhatsappHref(settings);
 
   <section class="section">
     <SectionHeader number="02" title="Send a Message" meta="Direct Pipeline"/>
-    <ContactForm directEmail={settings.email} client:load/>
+    <ContactForm directEmail={settings.email} client:visible/>
   </section>
 
   <section class="section">

@@ -4,6 +4,8 @@ export interface CarouselImage {
   url: string;
   alt: string;
   caption?: string;
+  width?: number;
+  height?: number;
 }
 
 interface Props {
@@ -61,7 +63,7 @@ export default function ImageCarousel({ images, label }: Props) {
       <div className="carousel-track" ref={trackRef} tabIndex={0}>
         {images.map((image, index) => (
           <figure className="carousel-figure" key={`${image.url}-${index}`}>
-            <img src={image.url} alt={image.alt} loading={index < 2 ? 'eager' : 'lazy'} decoding="async" />
+            <img src={image.url} alt={image.alt} width={image.width} height={image.height} loading={index < 2 ? 'eager' : 'lazy'} decoding="async" />
             <figcaption>
               <span>FIG / {String(index + 1).padStart(2, '0')}</span>
               {image.caption && <span>{image.caption}</span>}

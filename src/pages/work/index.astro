@@ -3,9 +3,17 @@ import Base from '../../layouts/Base.astro';
 import SectionHeader from '../../components/system/SectionHeader.astro';
 import ArchivePagination from '../../components/ArchivePagination';
 import {getProjects,getSiteSettings} from '../../lib/data';
+import {breadcrumbSchema,itemListSchema} from '../../lib/seo/schema';
 const [projects,settings]=await Promise.all([getProjects(),getSiteSettings()]);
-const requestedPage=Number(Astro.url.searchParams.get('page') || '1');
-const initialPage=Number.isInteger(requestedPage)&&requestedPage>0?requestedPage:1;
+const pageSize=4;
+const totalPages=Math.max(1,Math.ceil(projects.length/pageSize));
+const pageParam=Astro.url.searchParams.get('page');
+const requestedPage=Number(pageParam || '1');
+const currentPage=Number.isInteger(requestedPage)&&requestedPage>0?Math.min(requestedPage,totalPages):1;
+if(pageParam&&(requestedPage!==currentPage||currentPage===1)) return Astro.redirect(currentPage===1?'/work':`/work?page=${currentPage}`,308);
+const canonicalPath=currentPage===1?'/work':`/work?page=${currentPage}`;
+const title=currentPage===1?`Projects | ${settings.name}`:`Projects — Page ${currentPage} | ${settings.name}`;
+const description=currentPage===1?settings.workIntro:`${settings.workIntro} Page ${currentPage} of ${totalPages}.`;
 const archiveItems=projects.map((project,index)=>({
   href:`/work/${project.slug}`,
   sequence:index+1,
@@ -14,8 +22,14 @@ const archiveItems=projects.map((project,index)=>({
   tags:project.techStack,
   status:project.status
 }));
+const visibleProjects=projects.slice((currentPage-1)*pageSize,currentPage*pageSize);
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Projects',path:'/work'}]),
+  {'@context':'https://schema.org','@type':'CollectionPage',name:title,url:new URL(canonicalPath,Astro.site),description},
+  itemListSchema(Astro.site!,'Engineering projects',visibleProjects.map((project)=>({name:project.title,path:`/work/${project.slug}`})))
+];
 ---
-<Base title={`Selected Work — ${settings.name}`}>
+<Base title={title} description={description} canonicalPath={canonicalPath} jsonLd={jsonLd}>
   <header class="pagehead">
     <div class="eyebrow">[01 // Project Index]</div>
     <h1>{settings.workTitle}</h1>
@@ -23,6 +37,6 @@ const archiveItems=projects.map((project,index)=>({
   </header>
   <section class="section">
     <SectionHeader number="02" title="Project Records" meta={`${projects.length} systems total`}/>
-    <ArchivePagination kind="projects" items={archiveItems} initialPage={initialPage} pageSize={4} client:load />
+    <ArchivePagination kind="projects" items={archiveItems} initialPage={currentPage} pageSize={pageSize} basePath="/work" client:visible />
   </section>
 </Base>

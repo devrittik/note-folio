@@ -2,24 +2,97 @@
 import Sidebar from '../components/Sidebar.astro';
 import Footer from '../components/Footer.astro';
 import WhatsApp from '../components/WhatsApp.astro';
+import SEO from '../components/SEO.astro';
 import {getSiteSettings} from '../lib/data';
 import '../styles/global.css';
 
-interface Props { title: string; description?: string }
+interface Props {
+  title:string;
+  description?:string;
+  canonicalPath?:string;
+  type?:'website'|'article';
+  image?:string;
+  imageAlt?:string;
+  imageWidth?:number;
+  imageHeight?:number;
+  noindex?:boolean;
+  publishedTime?:string;
+  modifiedTime?:string;
+  tags?:string[];
+  jsonLd?:Record<string,unknown>[];
+}
+
 const settings=await getSiteSettings();
-const {title,description=settings.heroDescription}=Astro.props;
-const canonical=new URL(Astro.url.pathname,Astro.site);
-const jsonLd={
-  "@context":"https://schema.org",
-  "@type":"ProfilePage",
-  mainEntity:{
-    "@type":"Person",
-    name:settings.name,
-    jobTitle:settings.role,
-    email:settings.email,
-    url:canonical.origin,
-    address:{"@type":"PostalAddress",addressLocality:settings.location,addressCountry:'IN'}
-  }
+const {
+  title,
+  description=settings.heroDescription,
+  canonicalPath,
+  type='website',
+  image,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  noindex=false,
+  publishedTime,
+  modifiedTime,
+  tags=[],
+  jsonLd=[]
+}=Astro.props;
+
+const siteUrl=new URL('/',Astro.site).toString();
+const personId=`${siteUrl}#person`;
+const websiteId=`${siteUrl}#website`;
+const sameAs=[settings.github,settings.linkedin].filter((url)=>{
+  try{return new URL(url).pathname!='/';}catch{return false;}
+});
+const person:Record<string,unknown>={
+  '@context':'https://schema.org',
+  '@type':'Person',
+  '@id':personId,
+  name:settings.name,
+  jobTitle:settings.role,
+  email:settings.email,
+  url:siteUrl,
+  homeLocation:{'@type':'Place',name:settings.location},
+  sameAs
 };
+if(settings.profileImageUrl) person.image=new URL(settings.profileImageUrl,Astro.site).toString();
+const website:Record<string,unknown>={
+  '@context':'https://schema.org',
+  '@type':'WebSite',
+  '@id':websiteId,
+  name:`${settings.name} — Engineering Notebook`,
+  url:siteUrl,
+  inLanguage:'en-IN',
+  author:{'@id':personId}
+};
+const structuredData=noindex?[]:[website,person,...jsonLd];
+if(!noindex&&Astro.url.pathname==='/') structuredData.push({
+  '@context':'https://schema.org',
+  '@type':'ProfilePage',
+  '@id':`${siteUrl}#profile-page`,
+  url:siteUrl,
+  name:title,
+  description,
+  mainEntity:{'@id':personId},
+  isPartOf:{'@id':websiteId}
+});
 ---
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width"/><meta name="description" content={description}/><link rel="canonical" href={canonical}/><meta name="theme-color" content="#f2f0ea"/><meta property="og:title" content={title}/><meta property="og:description" content={description}/><title>{title}</title><script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script></head><body id="top"><div class="shell"><Sidebar/><span class="registration tl">＋</span><span class="registration tr">＋</span><main class="main"><slot/><Footer/></main><WhatsApp/></div></body></html>
+<!doctype html>
+<html lang="en-IN" dir="ltr">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+    <SEO settings={settings} title={title} description={description} canonicalPath={canonicalPath} type={type} image={image} imageAlt={imageAlt} imageWidth={imageWidth} imageHeight={imageHeight} noindex={noindex} publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags} jsonLd={structuredData}/>
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="shell">
+      <Sidebar/>
+      <span class="registration tl" aria-hidden="true">＋</span>
+      <span class="registration tr" aria-hidden="true">＋</span>
+      <main class="main" id="main-content"><slot/><Footer/></main>
+      <WhatsApp/>
+    </div>
+  </body>
+</html>

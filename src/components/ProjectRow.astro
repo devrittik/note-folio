@@ -4,7 +4,7 @@ interface Props{project:Project;index:number}
 const {project,index}=Astro.props;
 ---
 <article class="project-row transition-mechanical">
-  <a class="card-hit-area" href={`/work/${project.slug}`} aria-label={`Open ${project.title} project record`}></a>
+  <a class="card-hit-area" href={`/work/${project.slug}`} aria-label={`Open ${project.title} project record`}><span class="sr-only">View project: {project.title}</span></a>
   <div class="project-top"><span class="project-index">Project // {String(index).padStart(2,'0')}</span><h3>{project.title}</h3><span class:list={['status',project.status]}>Status / <b>{project.status}</b></span></div>
   <p>{project.oneLiner}</p>
   <div class="row-foot"><div>{project.techStack.map(t=><span class="tag">{t}</span>)}</div><span class="button-link">Open Record ↗</span></div>

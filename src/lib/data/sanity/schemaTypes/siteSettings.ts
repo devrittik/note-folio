@@ -8,7 +8,8 @@ export const siteSettingsSchema = defineType({
     { name: 'identity', title: 'Identity', default: true },
     { name: 'home', title: 'Homepage' },
     { name: 'about', title: 'About' },
-    { name: 'contact', title: 'Contact' }
+    { name: 'contact', title: 'Contact' },
+    { name: 'seo', title: 'Search & social' }
   ],
   initialValue: {
     name: 'Mr. Developer',
@@ -71,6 +72,16 @@ export const siteSettingsSchema = defineType({
     defineField({ name: 'resumeFile', title: 'Résumé PDF', type: 'file', group: 'identity', options: { accept: 'application/pdf' } }),
     defineField({ name: 'resumeUrl', title: 'External résumé URL', type: 'url', group: 'identity', description: 'Used only when no PDF is uploaded.' }),
     defineField({ name: 'footerCopyright', type: 'string', group: 'identity', validation: (Rule) => Rule.required() }),
+
+    defineField({ name: 'twitterHandle', title: 'X/Twitter handle', type: 'string', group: 'seo', description: 'Optional, including the @ prefix.' }),
+    defineField({
+      name: 'defaultSeoImage',
+      title: 'Default social preview image',
+      type: 'image',
+      group: 'seo',
+      description: 'Recommended: 1200 × 630 px PNG or JPEG.',
+      fields: [defineField({ name: 'alt', title: 'Alternative text', type: 'string' })]
+    }),
 
     defineField({ name: 'heroHeadline', type: 'text', rows: 2, group: 'home', validation: (Rule) => Rule.required() }),
     defineField({ name: 'heroDescription', type: 'text', rows: 3, group: 'home', validation: (Rule) => Rule.required() }),

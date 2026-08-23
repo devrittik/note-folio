@@ -6,12 +6,13 @@ import RelatedSidebar from '../../components/RelatedSidebar.astro';
 import SharePanel from '../../components/SharePanel.astro';
 import {rankRelated} from '../../lib/content/related';
 import {getJournalBySlug,getJournalEntries,getSiteSettings} from '../../lib/data';
+import {breadcrumbSchema} from '../../lib/seo/schema';
 const [entry,settings,journals]=await Promise.all([
   getJournalBySlug(Astro.params.slug || ''),
   getSiteSettings(),
   getJournalEntries()
 ]);
-if(!entry) return Astro.redirect('/404');
+if(!entry) return Astro.rewrite('/404');
 const journalImages=entry.body.filter((item)=>item.type==='image');
 const journalParagraphs=entry.body.filter((item)=>item.type==='paragraph');
 const relatedEntries=rankRelated(entry,journals.filter((item)=>item.slug!==entry.slug),(item)=>item.tags).map((item)=>({
@@ -20,16 +21,37 @@ const relatedEntries=rankRelated(entry,journals.filter((item)=>item.slug!==entry
   meta:item.date.slice(0,7).replace('-','.'),
   tags:item.tags
 }));
-const articleLd=entry.schemaType==='Article'?{
-  "@context":"https://schema.org",
-  "@type":"Article",
+const canonicalPath=`/journal/${entry.slug}`;
+const title=entry.seoTitle || `${entry.title} | ${settings.name}`;
+const description=entry.seoDescription || entry.excerpt;
+const fallbackImage=journalImages[0];
+const seoImage=entry.seoImageUrl || fallbackImage?.url;
+const seoImageAlt=entry.seoImageAlt || fallbackImage?.alt || `${entry.title} — ${settings.name}`;
+const seoImageWidth=entry.seoImageUrl?entry.seoImageWidth:fallbackImage?.width;
+const seoImageHeight=entry.seoImageUrl?entry.seoImageHeight:fallbackImage?.height;
+const articleSchema:Record<string,unknown>={
+  '@context':'https://schema.org',
+  '@type':'Article',
   headline:entry.title,
+  description,
+  url:new URL(canonicalPath,Astro.site).toString(),
+  mainEntityOfPage:new URL(canonicalPath,Astro.site).toString(),
   datePublished:entry.date,
-  author:{"@type":"Person",name:settings.name}
-}:null;
+  author:{'@id':`${new URL('/',Astro.site)}#person`},
+  isPartOf:{'@id':`${new URL('/',Astro.site)}#website`},
+  keywords:entry.tags.join(', '),
+  articleBody:journalParagraphs.map((paragraph)=>paragraph.text).join('\n\n'),
+  inLanguage:'en-IN',
+  isAccessibleForFree:true
+};
+if(entry.updatedAt) articleSchema.dateModified=entry.updatedAt;
+if(seoImage) articleSchema.image=new URL(seoImage,Astro.site).toString();
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Journal',path:'/journal'},{name:entry.title,path:canonicalPath}]),
+  articleSchema
+];
 ---
-<Base title={`${entry.title} — Journal`} description={entry.excerpt}>
-  {articleLd&&<script is:inline type="application/ld+json" set:html={JSON.stringify(articleLd)}></script>}
+<Base title={title} description={description} canonicalPath={canonicalPath} type="article" image={seoImage} imageAlt={seoImageAlt} imageWidth={seoImageWidth} imageHeight={seoImageHeight} publishedTime={entry.date} modifiedTime={entry.updatedAt} tags={entry.tags} jsonLd={jsonLd}>
   <header class="pagehead detail-header">
     <div class="eyebrow">[Entry // {entry.date.slice(0,7).replace('-','.')} · {entry.readTime} min]</div>
     <h1 class:list={['entry-title',{'is-long':entry.title.length>38}]}>{entry.title}</h1>

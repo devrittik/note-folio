@@ -1,0 +1,90 @@
+---
+import type {SiteSettings} from '../lib/data/types';
+
+interface Props {
+  settings: SiteSettings;
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  noindex?: boolean;
+  publishedTime?: string;
+  modifiedTime?: string;
+  tags?: string[];
+  jsonLd?: Record<string,unknown>[];
+}
+
+const {
+  settings,
+  title,
+  description,
+  canonicalPath,
+  type='website',
+  image,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  noindex=false,
+  publishedTime,
+  modifiedTime,
+  tags=[],
+  jsonLd=[]
+}=Astro.props;
+
+const canonical=new URL(canonicalPath || Astro.url.pathname,Astro.site);
+canonical.hash='';
+if(!canonicalPath) canonical.search='';
+if(canonical.pathname.length>1) canonical.pathname=canonical.pathname.replace(/\/+$/,'');
+if(!['localhost','127.0.0.1'].includes(canonical.hostname)) canonical.protocol='https:';
+
+const selectedImage=image || settings.defaultSeoImageUrl || '/og-default.png';
+const socialImage=new URL(selectedImage,Astro.site);
+if(!['localhost','127.0.0.1'].includes(socialImage.hostname)) socialImage.protocol='https:';
+const socialImageAlt=imageAlt || settings.defaultSeoImageAlt || `${settings.name} — ${settings.role}`;
+const imagePath=socialImage.pathname.toLowerCase();
+const imageMime=imagePath.endsWith('.png')?'image/png':imagePath.endsWith('.webp')?'image/webp':imagePath.match(/\.jpe?g$/)?'image/jpeg':undefined;
+const socialWidth=imageWidth || settings.defaultSeoImageWidth || 1200;
+const socialHeight=imageHeight || settings.defaultSeoImageHeight || 630;
+const robots=noindex
+  ? 'noindex, nofollow, noarchive'
+  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+const json=(value:Record<string,unknown>)=>JSON.stringify(value).replace(/</g,'\\u003c');
+---
+<title>{title}</title>
+<meta name="description" content={description}/>
+<meta name="author" content={settings.name}/>
+<meta name="robots" content={robots}/>
+<meta name="googlebot" content={robots}/>
+<link rel="canonical" href={canonical.toString()}/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<meta name="theme-color" content="#f2f0ea"/>
+
+<meta property="og:type" content={type}/>
+<meta property="og:site_name" content={`${settings.name} — Engineering Notebook`}/>
+<meta property="og:locale" content="en_IN"/>
+<meta property="og:url" content={canonical.toString()}/>
+<meta property="og:title" content={title}/>
+<meta property="og:description" content={description}/>
+<meta property="og:image" content={socialImage.toString()}/>
+<meta property="og:image:secure_url" content={socialImage.toString()}/>
+{imageMime&&<meta property="og:image:type" content={imageMime}/>} 
+<meta property="og:image:width" content={String(socialWidth)}/>
+<meta property="og:image:height" content={String(socialHeight)}/>
+<meta property="og:image:alt" content={socialImageAlt}/>
+{publishedTime&&<meta property="article:published_time" content={publishedTime}/>} 
+{modifiedTime&&<meta property="article:modified_time" content={modifiedTime}/>} 
+{tags.map((tag)=><meta property="article:tag" content={tag}/>)}
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content={title}/>
+<meta name="twitter:description" content={description}/>
+<meta name="twitter:image" content={socialImage.toString()}/>
+<meta name="twitter:image:alt" content={socialImageAlt}/>
+{settings.twitterHandle&&<meta name="twitter:creator" content={settings.twitterHandle}/>} 
+{settings.twitterHandle&&<meta name="twitter:site" content={settings.twitterHandle}/>} 
+
+{jsonLd.map((entry)=><script is:inline type="application/ld+json" set:html={json(entry)}></script>)}

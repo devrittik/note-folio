@@ -2,9 +2,15 @@
 import Base from '../layouts/Base.astro';
 import SectionHeader from '../components/system/SectionHeader.astro';
 import {getSiteSettings} from '../lib/data';
+import {breadcrumbSchema} from '../lib/seo/schema';
 const settings=await getSiteSettings();
+const title=`About ${settings.name} | ${settings.role}`;
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'About',path:'/about'}]),
+  {'@context':'https://schema.org','@type':'AboutPage',name:title,url:new URL('/about',Astro.site),description:settings.aboutHeadline,mainEntity:{'@id':`${new URL('/',Astro.site)}#person`}}
+];
 ---
-<Base title={`About — ${settings.name}`}>
+<Base title={title} description={settings.aboutHeadline} canonicalPath="/about" jsonLd={jsonLd}>
   <header class="pagehead">
     <div class="eyebrow">[01 // About the Engineer]</div>
     <h1 class="multiline-title">{settings.aboutTitle}</h1>

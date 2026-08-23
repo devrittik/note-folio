@@ -3,10 +3,18 @@ import Base from '../../layouts/Base.astro';
 import SectionHeader from '../../components/system/SectionHeader.astro';
 import ArchivePagination from '../../components/ArchivePagination';
 import {getJournalEntries,getSiteSettings} from '../../lib/data';
+import {breadcrumbSchema,itemListSchema} from '../../lib/seo/schema';
 const [journals,settings]=await Promise.all([getJournalEntries(),getSiteSettings()]);
 const featured=journals.find((entry)=>entry.featured) || journals[0];
-const requestedPage=Number(Astro.url.searchParams.get('page') || '1');
-const initialPage=Number.isInteger(requestedPage)&&requestedPage>0?requestedPage:1;
+const pageSize=4;
+const totalPages=Math.max(1,Math.ceil(journals.length/pageSize));
+const pageParam=Astro.url.searchParams.get('page');
+const requestedPage=Number(pageParam || '1');
+const currentPage=Number.isInteger(requestedPage)&&requestedPage>0?Math.min(requestedPage,totalPages):1;
+if(pageParam&&(requestedPage!==currentPage||currentPage===1)) return Astro.redirect(currentPage===1?'/journal':`/journal?page=${currentPage}`,308);
+const canonicalPath=currentPage===1?'/journal':`/journal?page=${currentPage}`;
+const title=currentPage===1?`Engineering Journal | ${settings.name}`:`Engineering Journal — Page ${currentPage} | ${settings.name}`;
+const description=currentPage===1?settings.journalIntro:`${settings.journalIntro} Page ${currentPage} of ${totalPages}.`;
 const archiveItems=journals.map((entry,index)=>({
   href:`/journal/${entry.slug}`,
   sequence:journals.length-index,
@@ -15,26 +23,32 @@ const archiveItems=journals.map((entry,index)=>({
   tags:entry.tags,
   date:entry.date.slice(0,7).replace('-','.')
 }));
+const visibleEntries=journals.slice((currentPage-1)*pageSize,currentPage*pageSize);
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Journal',path:'/journal'}]),
+  {'@context':'https://schema.org','@type':'CollectionPage',name:title,url:new URL(canonicalPath,Astro.site),description},
+  itemListSchema(Astro.site!,'Engineering journal entries',visibleEntries.map((entry)=>({name:entry.title,path:`/journal/${entry.slug}`})))
+];
 ---
-<Base title={`Journal — ${settings.name}`}>
+<Base title={title} description={description} canonicalPath={canonicalPath} jsonLd={jsonLd}>
   <header class="pagehead">
     <div class="eyebrow">[01 // Journal Entry Deck]</div>
     <h1>{settings.journalTitle}</h1>
     <div class="lede">{settings.journalIntro}</div>
   </header>
 
-  {featured&&<section class="section">
+  {featured&&currentPage===1&&<section class="section">
     <SectionHeader number="02" title="Featured Entry" meta="Latest Broadcast"/>
     <article class="featured dashed">
-      <a class="card-hit-area" href={`/journal/${featured.slug}`} aria-label={`Read ${featured.title}`}></a>
+      <a class="card-hit-area" href={`/journal/${featured.slug}`} aria-label={`Read ${featured.title}`}><span class="sr-only">Read featured journal entry: {featured.title}</span></a>
       <span class="meta signal">Featured // Entry / {String(journals.length-journals.indexOf(featured)).padStart(2,'0')}</span>
-      <h2>{featured.title}</h2><p>{featured.excerpt}</p>
+      <h3>{featured.title}</h3><p>{featured.excerpt}</p>
       <div class="row-foot"><div>{featured.tags.map((tag)=><span class="tag">{tag}</span>)}</div><span class="button-link">Read Entry ↗</span></div>
     </article>
   </section>}
 
   <section class="section">
     <SectionHeader number="03" title="Archived Journal Entries" meta={`${journals.length} entries total`}/>
-    <ArchivePagination kind="journal" items={archiveItems} initialPage={initialPage} pageSize={4} client:load />
+    <ArchivePagination kind="journal" items={archiveItems} initialPage={currentPage} pageSize={pageSize} basePath="/journal" client:visible />
   </section>
 </Base>

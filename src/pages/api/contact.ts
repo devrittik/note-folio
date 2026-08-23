@@ -19,6 +19,7 @@ function json(body: ContactApiResponse, status: number, extraHeaders: Record<str
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
+      'x-robots-tag': 'noindex, nofollow',
       ...extraHeaders
     }
   });

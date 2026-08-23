@@ -15,9 +15,10 @@ const PROJECT_FIELDS = `
   title,
   status,
   year,
+  "updatedAt": _updatedAt,
   order,
   oneLiner,
-  screenshots[]{"url": asset->url, alt, caption},
+  screenshots[]{"url": asset->url, alt, caption, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height},
   techStack,
   problem,
   system[]{title, sub},
@@ -25,22 +26,35 @@ const PROJECT_FIELDS = `
   notes[]{challenge, decision, tradeoff},
   metrics,
   liveUrl,
-  githubUrl
+  githubUrl,
+  seoTitle,
+  seoDescription,
+  "seoImageUrl": seoImage.asset->url,
+  "seoImageAlt": seoImage.alt,
+  "seoImageWidth": seoImage.asset->metadata.dimensions.width,
+  "seoImageHeight": seoImage.asset->metadata.dimensions.height
 `;
 
 const JOURNAL_FIELDS = `
   "slug": slug.current,
   title,
   date,
+  "updatedAt": _updatedAt,
   readTime,
   excerpt,
   tags,
   featured,
   body[]{
     _type == "journalTextBlock" => {"type": "paragraph", text},
-    _type == "image" => {"type": "image", "url": asset->url, alt, caption}
+    _type == "image" => {"type": "image", "url": asset->url, alt, caption, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height}
   },
-  schemaType
+  schemaType,
+  seoTitle,
+  seoDescription,
+  "seoImageUrl": seoImage.asset->url,
+  "seoImageAlt": seoImage.alt,
+  "seoImageWidth": seoImage.asset->metadata.dimensions.width,
+  "seoImageHeight": seoImage.asset->metadata.dimensions.height
 `;
 
 const SETTINGS_FIELDS = `
@@ -55,6 +69,13 @@ const SETTINGS_FIELDS = `
   whatsappMessage,
   availability,
   "profileImageUrl": profileImage.asset->url,
+  "profileImageWidth": profileImage.asset->metadata.dimensions.width,
+  "profileImageHeight": profileImage.asset->metadata.dimensions.height,
+  "defaultSeoImageUrl": defaultSeoImage.asset->url,
+  "defaultSeoImageAlt": defaultSeoImage.alt,
+  "defaultSeoImageWidth": defaultSeoImage.asset->metadata.dimensions.width,
+  "defaultSeoImageHeight": defaultSeoImage.asset->metadata.dimensions.height,
+  twitterHandle,
   heroHeadline,
   heroDescription,
   coreFocus,

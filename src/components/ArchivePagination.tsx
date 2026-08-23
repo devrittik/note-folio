@@ -15,13 +15,15 @@ interface Props {
   items: ArchiveItem[];
   initialPage?: number;
   pageSize?: number;
+  basePath: string;
 }
 
 export default function ArchivePagination({
   kind,
   items,
   initialPage = 1,
-  pageSize = 4
+  pageSize = 4,
+  basePath
 }: Props) {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const firstPage = Math.min(Math.max(initialPage, 1), totalPages);
@@ -46,12 +48,14 @@ export default function ArchivePagination({
     window.requestAnimationFrame(() => containerRef.current?.focus({ preventScroll: true }));
   };
 
+  const pageHref = (pageNumber: number) => pageNumber === 1 ? basePath : `${basePath}?page=${pageNumber}`;
+
   return (
     <div className="archive-pager" ref={containerRef} tabIndex={-1} aria-live="polite">
       <div className="archive-items">
         {visibleItems.map((item) => kind === 'projects' ? (
           <article className="project-row transition-mechanical" key={item.href}>
-            <a className="card-hit-area" href={item.href} aria-label={`Open ${item.title} project record`}></a>
+            <a className="card-hit-area" href={item.href} aria-label={`Open ${item.title} project record`}><span className="sr-only">View project: {item.title}</span></a>
             <div className="project-top">
               <span className="project-index">Project // {String(item.sequence).padStart(2, '0')}</span>
               <h3>{item.title}</h3>
@@ -62,7 +66,7 @@ export default function ArchivePagination({
           </article>
         ) : (
           <article className="journal-row" key={item.href}>
-            <a className="card-hit-area" href={item.href} aria-label={`Read ${item.title}`}></a>
+            <a className="card-hit-area" href={item.href} aria-label={`Read ${item.title}`}><span className="sr-only">Read journal entry: {item.title}</span></a>
             <div className="journal-top">
               <span className="project-index signal">Entry // {String(item.sequence).padStart(2, '0')}</span>
               <h3>{item.title}</h3>
@@ -75,21 +79,25 @@ export default function ArchivePagination({
       </div>
 
       <nav className="pagination" aria-label={`${kind} pagination`}>
-        <button type="button" onClick={() => changePage(page - 1)} disabled={page === 1} aria-label="Previous page">←</button>
+        {page===1
+          ? <span className="pagination-control disabled" aria-hidden="true">←</span>
+          : <a className="pagination-control" href={pageHref(page-1)} rel="prev" aria-label="Previous page" onClick={(event)=>{event.preventDefault();changePage(page-1)}}>←</a>}
         <div className="pagination-pages">
           {Array.from({ length: totalPages }, (_, index) => index + 1).map((pageNumber) => (
-            <button
-              type="button"
+            <a
+              href={pageHref(pageNumber)}
               className={pageNumber === page ? 'active' : undefined}
               aria-current={pageNumber === page ? 'page' : undefined}
-              onClick={() => changePage(pageNumber)}
+              onClick={(event)=>{event.preventDefault();changePage(pageNumber)}}
               key={pageNumber}
             >
               {String(pageNumber).padStart(2, '0')}
-            </button>
+            </a>
           ))}
         </div>
-        <button type="button" onClick={() => changePage(page + 1)} disabled={page === totalPages} aria-label="Next page">→</button>
+        {page===totalPages
+          ? <span className="pagination-control disabled" aria-hidden="true">→</span>
+          : <a className="pagination-control" href={pageHref(page+1)} rel="next" aria-label="Next page" onClick={(event)=>{event.preventDefault();changePage(page+1)}}>→</a>}
         <span className="pagination-status">Page {String(page).padStart(2, '0')} // {String(totalPages).padStart(2, '0')}</span>
       </nav>
     </div>

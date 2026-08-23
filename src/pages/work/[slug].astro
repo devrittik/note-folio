@@ -5,10 +5,14 @@ import ImageCarousel from '../../components/ImageCarousel';
 import RelatedSidebar from '../../components/RelatedSidebar.astro';
 import SharePanel from '../../components/SharePanel.astro';
 import {rankRelated} from '../../lib/content/related';
-import {getProjectBySlug,getProjects} from '../../lib/data';
-const project=await getProjectBySlug(Astro.params.slug || '');
-if(!project) return Astro.redirect('/404');
-const projects=await getProjects();
+import {getProjectBySlug,getProjects,getSiteSettings} from '../../lib/data';
+import {breadcrumbSchema} from '../../lib/seo/schema';
+const [project,projects,settings]=await Promise.all([
+  getProjectBySlug(Astro.params.slug || ''),
+  getProjects(),
+  getSiteSettings()
+]);
+if(!project) return Astro.rewrite('/404');
 const index=projects.findIndex((item)=>item.slug===project.slug)+1;
 const relatedProjects=rankRelated(project,projects.filter((item)=>item.slug!==project.slug),(item)=>item.techStack).map((item)=>({
   href:`/work/${item.slug}`,
@@ -16,8 +20,35 @@ const relatedProjects=rankRelated(project,projects.filter((item)=>item.slug!==pr
   meta:String(item.year),
   tags:item.techStack
 }));
+const canonicalPath=`/work/${project.slug}`;
+const title=project.seoTitle || `${project.title} — Engineering Case Study | ${settings.name}`;
+const description=project.seoDescription || project.oneLiner;
+const fallbackImage=project.screenshots[0];
+const seoImage=project.seoImageUrl || fallbackImage?.url;
+const seoImageAlt=project.seoImageAlt || fallbackImage?.alt || `${project.title} project by ${settings.name}`;
+const seoImageWidth=project.seoImageUrl?project.seoImageWidth:fallbackImage?.width;
+const seoImageHeight=project.seoImageUrl?project.seoImageHeight:fallbackImage?.height;
+const projectSchema:Record<string,unknown>={
+  '@context':'https://schema.org',
+  '@type':'SoftwareSourceCode',
+  name:project.title,
+  description,
+  url:new URL(canonicalPath,Astro.site).toString(),
+  author:{'@id':`${new URL('/',Astro.site)}#person`},
+  dateCreated:String(project.year),
+  programmingLanguage:project.techStack,
+  keywords:project.techStack.join(', ')
+};
+if(project.updatedAt) projectSchema.dateModified=project.updatedAt;
+if(project.githubUrl) projectSchema.codeRepository=project.githubUrl;
+if(project.liveUrl) projectSchema.sameAs=project.liveUrl;
+if(seoImage) projectSchema.image=new URL(seoImage,Astro.site).toString();
+const jsonLd=[
+  breadcrumbSchema(Astro.site!,[{name:'Home',path:'/'},{name:'Projects',path:'/work'},{name:project.title,path:canonicalPath}]),
+  projectSchema
+];
 ---
-<Base title={`${project.title} — Engineering Case Study`} description={project.oneLiner}>
+<Base title={title} description={description} canonicalPath={canonicalPath} image={seoImage} imageAlt={seoImageAlt} imageWidth={seoImageWidth} imageHeight={seoImageHeight} jsonLd={jsonLd}>
   <header class="case-hero">
     <div class="case-meta"><span>Project // {String(index).padStart(2,'0')}</span><span class={project.status==='live'?'status live':'status built'}>Status // <b>{project.status}</b></span><span>Year // {project.year}</span></div>
     <h1 class:list={['case-title',{'is-long':project.title.length>20}]}>{project.title}</h1>
@@ -25,7 +56,7 @@ const relatedProjects=rankRelated(project,projects.filter((item)=>item.slug!==pr
   </header>
 
   <div class="detail-layout">
-    <div class="detail-main">
+    <article class="detail-main">
       {project.screenshots.length>0&&<div class="section project-screenshot-section">
         <ImageCarousel images={project.screenshots} label="PROJECT SCREENSHOTS" client:visible />
       </div>}
@@ -35,7 +66,7 @@ const relatedProjects=rankRelated(project,projects.filter((item)=>item.slug!==pr
       <section class="section"><SectionHeader number="03" title="The Build"/><ul class="feature-list">{project.buildFeatures.map((feature)=><li>{feature}</li>)}</ul><div style="margin-top:25px">{project.techStack.map((technology)=><span class="tag">{technology}</span>)}</div></section>
       <section class="section"><SectionHeader number="04" title="Engineering Notes"/>{project.notes.map((note,noteIndex)=><article class="note-card"><div class="note-title">Note // {String(noteIndex+1).padStart(3,'0')}</div><div class="note-row"><b>Challenge</b><span>{note.challenge}</span></div><div class="note-row"><b>Decision</b><span>{note.decision}</span></div><div class="note-row"><b>Tradeoff</b><span>{note.tradeoff}</span></div></article>)}</section>
       <section class="section"><SectionHeader number="05" title="Result" meta="Production Record"/><div class="metric-grid">{project.metrics.map((metric)=><div class="metric">{metric}</div>)}</div>{(project.liveUrl||project.githubUrl)&&<div style="margin-top:28px">{project.liveUrl&&<a class="button-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live Demo ↗</a>}&nbsp;&nbsp;{project.githubUrl&&<a class="button-link" href={project.githubUrl} target="_blank" rel="noopener noreferrer">GitHub Repository ↗</a>}</div>}<div class="detail-share"><SharePanel title={project.title} path={Astro.url.pathname}/></div></section>
-    </div>
+    </article>
 
     <aside class="detail-sidebar">
       <RelatedSidebar title="SIMILAR PROJECTS" items={relatedProjects}/>
