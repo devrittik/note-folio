@@ -9,7 +9,10 @@ const active=(href:string)=>href==='/'?path==='/':path.startsWith(href);
 <aside class="sidebar">
   <a class="brand" href="/"><strong>{settings.name}</strong><small>{settings.role}</small></a>
   <div class="presence"><i></i>{settings.location} // Active</div>
-  <nav class="nav">{links.map(([n,l,h])=><a href={h} class:list={{active:active(h)}}><span>[{n}]</span>{l}</a>)}<a class="nav-resume" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a></nav>
+  <nav class="nav">{links.map(([n,l,h])=><a href={h} class:list={{active:active(h)}}><span>[{n}]</span>{l}</a>)}
+    <a class="nav-button" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a>
+    <a class="nav-button" href={'/lab/draw'} target="_blank" rel="noopener noreferrer">Canvas ↗</a>
+  </nav>
   <div class="sidefoot">System status // OK<br/>Coords // 22.5726° N, 88.3639° E<br/>Edition // 2026.V1
     <div class="socials">
       <a href={settings.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Icon name="github"/><span>GitHub</span></a>
@@ -20,7 +23,8 @@ const active=(href:string)=>href==='/'?path==='/':path.startsWith(href);
 <div class="mobilebar">
   <div class="mobilebar-head">
     <a class="brand" href="/"><strong>{settings.name}</strong></a>
-    <a class="mobile-resume" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a>
+    <a class="mobile-button" href={settings.resumeUrl || '/resume.pdf'} target="_blank" rel="noopener noreferrer">View Resume ↗</a>
+    <a class="mobile-button" href={'/lab/draw'} target="_blank" rel="noopener noreferrer">Canvas ↗</a>
   </div>
   <nav aria-label="Primary navigation">{links.map(([n,l,h])=><a href={h} class:list={{active:active(h)}}><span>[{n}]</span>{l}</a>)}</nav>
 </div>
