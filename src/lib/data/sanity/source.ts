@@ -1,3 +1,4 @@
+import { journalContentFromStored, normalizeCarouselImages, projectBodyFromStored } from '../../content/legacyBody';
 import { calculateReadTime } from '../../content/readTime';
 import type { DataSource } from '../source';
 import {
@@ -10,6 +11,8 @@ import {
 } from '../types';
 import { getSanityClient } from './client';
 
+const CAROUSEL_IMAGE = `{"url": asset->url, alt, caption, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height}`;
+
 const PROJECT_FIELDS = `
   "slug": slug.current,
   title,
@@ -18,8 +21,9 @@ const PROJECT_FIELDS = `
   "updatedAt": _updatedAt,
   order,
   oneLiner,
-  screenshots[]{"url": asset->url, alt, caption, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height},
+  screenshots[]${CAROUSEL_IMAGE},
   techStack,
+  body,
   problem,
   system[]{title, sub},
   buildFeatures,
@@ -44,7 +48,9 @@ const JOURNAL_FIELDS = `
   excerpt,
   tags,
   featured,
-  body[]{
+  figures[]${CAROUSEL_IMAGE},
+  body,
+  "legacyBlocks": body[]{
     _type == "journalTextBlock" => {"type": "paragraph", text},
     _type == "image" => {"type": "image", "url": asset->url, alt, caption, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height}
   },
@@ -105,33 +111,25 @@ const SETTINGS_FIELDS = `
 `;
 
 function normalizeProject(row: Record<string, any>) {
+  const { problem, system, buildFeatures, notes, metrics, ...project } = row;
+
   return {
-    ...row,
-    screenshots: Array.isArray(row.screenshots)
-      ? row.screenshots
-          .filter((screenshot: Record<string, unknown>) => typeof screenshot.url === 'string')
-          .map((screenshot: Record<string, unknown>) => ({
-            ...screenshot,
-            caption: screenshot.caption ?? undefined
-          }))
-      : []
+    ...project,
+    screenshots: normalizeCarouselImages(row.screenshots),
+    body: projectBodyFromStored({ body: row.body, problem, system, buildFeatures, notes, metrics })
   };
 }
 
 function normalizeJournal(row: Record<string, any>) {
-  const body = Array.isArray(row.body)
-    ? row.body
-        .filter((item: unknown) => Boolean(item))
-        .map((item: Record<string, unknown>) => ({
-          ...item,
-          caption: item.caption ?? undefined
-        }))
-    : [];
+  const storedBody = typeof row.body === 'string' ? row.body : row.legacyBlocks;
+  const content = journalContentFromStored(storedBody, row.figures);
+  const { legacyBlocks: _legacyBlocks, ...entry } = row;
 
   return {
-    ...row,
-    body,
-    readTime: calculateReadTime(body),
+    ...entry,
+    body: content.body,
+    figures: content.figures,
+    readTime: calculateReadTime(content.body),
     schemaType: row.schemaType ?? 'Article'
   };
 }

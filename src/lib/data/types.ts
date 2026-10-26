@@ -23,11 +23,7 @@ export const ProjectSchema = z.object({
   oneLiner: z.string(),
   screenshots: z.array(ScreenshotSchema).default([]),
   techStack: z.array(z.string()),
-  problem: z.string(),
-  system: z.array(z.object({ title: z.string(), sub: z.string() })),
-  buildFeatures: z.array(z.string()),
-  notes: z.array(z.object({ challenge: z.string(), decision: z.string(), tradeoff: z.string() })),
-  metrics: z.array(z.string()),
+  body: z.string().default(''),
   liveUrl: optionalUrl,
   githubUrl: optionalUrl,
   seoTitle: optionalString,
@@ -39,25 +35,6 @@ export const ProjectSchema = z.object({
 });
 export type Project = z.infer<typeof ProjectSchema>;
 
-export const JournalParagraphSchema = z.object({
-  type: z.literal('paragraph'),
-  text: z.string()
-});
-export const JournalImageSchema = z.object({
-  type: z.literal('image'),
-  url: z.string().url(),
-  alt: z.string(),
-  caption: optionalString,
-  width: optionalNumber,
-  height: optionalNumber
-});
-export const JournalBodyItemSchema = z.union([
-  z.string().transform((text) => ({ type: 'paragraph' as const, text })),
-  JournalParagraphSchema,
-  JournalImageSchema
-]);
-export type JournalBodyItem = z.infer<typeof JournalBodyItemSchema>;
-
 export const JournalSchema = z.object({
   slug: z.string(),
   title: z.string(),
@@ -67,7 +44,8 @@ export const JournalSchema = z.object({
   excerpt: z.string(),
   tags: z.array(z.string()),
   featured: z.boolean().default(false),
-  body: z.array(JournalBodyItemSchema),
+  figures: z.array(ScreenshotSchema).default([]),
+  body: z.string().default(''),
   schemaType: z.preprocess((value) => value ?? 'Article', z.literal('Article')),
   seoTitle: optionalString,
   seoDescription: optionalString,

@@ -1,5 +1,6 @@
-import { defineArrayMember, defineField, defineType } from 'sanity';
+import { defineField, defineType } from 'sanity';
 import { ReadTimeInput } from '../components/ReadTimeInput';
+import { carouselImageMember } from './carouselImage';
 
 export const journalEntrySchema = defineType({
   name: 'journalEntry',
@@ -22,34 +23,18 @@ export const journalEntrySchema = defineType({
     defineField({ name: 'tags', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' }, validation: (Rule) => Rule.required() }),
     defineField({ name: 'featured', type: 'boolean', initialValue: false }),
     defineField({
+      name: 'figures',
+      title: 'Figure carousel',
+      description: 'Images shown in the journal carousel, in this order. Images dropped into the Markdown body stay inline in the article.',
+      type: 'array',
+      of: [carouselImageMember]
+    }),
+    defineField({
       name: 'body',
       title: 'Journal body',
-      description: 'Add and reorder text paragraphs and images.',
-      type: 'array',
-      of: [
-        defineArrayMember({
-          name: 'journalTextBlock',
-          title: 'Text paragraph',
-          type: 'object',
-          fields: [
-            defineField({ name: 'text', type: 'text', rows: 7, validation: (Rule) => Rule.required() })
-          ],
-          preview: {
-            select: { title: 'text' },
-            prepare: ({ title }) => ({ title: title || 'Text paragraph' })
-          }
-        }),
-        defineArrayMember({
-          type: 'image',
-          title: 'Body image',
-          options: { hotspot: true },
-          fields: [
-            defineField({ name: 'alt', title: 'Alternative text', type: 'string', validation: (Rule) => Rule.required() }),
-            defineField({ name: 'caption', type: 'string' })
-          ]
-        })
-      ],
-      validation: (Rule) => Rule.required().min(1)
+      description: 'GitHub-flavored Markdown, with a write view and a preview.',
+      type: 'markdown',
+      validation: (Rule) => Rule.required()
     }),
     defineField({
       name: 'schemaType',
@@ -66,7 +51,7 @@ export const journalEntrySchema = defineType({
       title: 'Social preview image',
       type: 'image',
       fieldset: 'seo',
-      description: 'Recommended: 1200 × 630 px. Falls back to the first body image, then the site default.',
+      description: 'Recommended: 1200 × 630 px. Falls back to the first carousel figure, then the site default.',
       fields: [defineField({ name: 'alt', title: 'Alternative text', type: 'string' })]
     })
   ],

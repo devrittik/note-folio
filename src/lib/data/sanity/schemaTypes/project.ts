@@ -1,4 +1,5 @@
-import { defineArrayMember, defineField, defineType } from 'sanity';
+import { defineField, defineType } from 'sanity';
+import { carouselImageMember } from './carouselImage';
 
 export const projectSchema = defineType({
   name: 'project',
@@ -14,43 +15,19 @@ export const projectSchema = defineType({
     defineField({ name: 'oneLiner', title: 'One-line summary', type: 'text', rows: 2, validation: (Rule) => Rule.required() }),
     defineField({
       name: 'screenshots',
-      title: 'Project screenshots',
-      description: 'Optional screenshots shown before The Problem section.',
+      title: 'Screenshot carousel',
+      description: 'Images shown in the project carousel, in this order. Images dropped into the Markdown body stay inline in the case study.',
       type: 'array',
-      of: [defineArrayMember({
-        type: 'image',
-        options: { hotspot: true },
-        fields: [
-          defineField({ name: 'alt', title: 'Alternative text', type: 'string', validation: (Rule) => Rule.required() }),
-          defineField({ name: 'caption', type: 'string' })
-        ]
-      })]
+      of: [carouselImageMember]
     }),
     defineField({ name: 'techStack', type: 'array', of: [{ type: 'string' }], options: { layout: 'tags' }, validation: (Rule) => Rule.required().min(1) }),
-    defineField({ name: 'problem', type: 'text', rows: 5, validation: (Rule) => Rule.required() }),
     defineField({
-      name: 'system',
-      title: 'System flow',
-      type: 'array',
-      of: [defineArrayMember({ type: 'object', fields: [
-        defineField({ name: 'title', type: 'string', validation: (Rule) => Rule.required() }),
-        defineField({ name: 'sub', title: 'Supporting label', type: 'string', validation: (Rule) => Rule.required() })
-      ], preview: { select: { title: 'title', subtitle: 'sub' } } })],
-      validation: (Rule) => Rule.required().min(1)
-    }),
-    defineField({ name: 'buildFeatures', type: 'array', of: [{ type: 'string' }], validation: (Rule) => Rule.required().min(1) }),
-    defineField({
-      name: 'notes',
-      title: 'Engineering notes',
-      type: 'array',
-      of: [defineArrayMember({ type: 'object', fields: [
-        defineField({ name: 'challenge', type: 'text', rows: 2, validation: (Rule) => Rule.required() }),
-        defineField({ name: 'decision', type: 'text', rows: 2, validation: (Rule) => Rule.required() }),
-        defineField({ name: 'tradeoff', type: 'text', rows: 2, validation: (Rule) => Rule.required() })
-      ], preview: { select: { title: 'challenge', subtitle: 'decision' } } })],
+      name: 'body',
+      title: 'Project body',
+      description: 'GitHub-flavored Markdown for the case study, with a write view and a preview.',
+      type: 'markdown',
       validation: (Rule) => Rule.required()
     }),
-    defineField({ name: 'metrics', type: 'array', of: [{ type: 'string' }], validation: (Rule) => Rule.required() }),
     defineField({ name: 'liveUrl', type: 'url' }),
     defineField({ name: 'githubUrl', type: 'url' }),
     defineField({ name: 'seoTitle', title: 'SEO title override', type: 'string', fieldset: 'seo', validation: (Rule) => Rule.max(70) }),

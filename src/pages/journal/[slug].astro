@@ -4,6 +4,8 @@ import SectionHeader from '../../components/system/SectionHeader.astro';
 import ImageCarousel from '../../components/ImageCarousel';
 import RelatedSidebar from '../../components/RelatedSidebar.astro';
 import SharePanel from '../../components/SharePanel.astro';
+import {extractReadableText} from '../../lib/content/readTime';
+import {renderMarkdown} from '../../lib/content/markdown';
 import {rankRelated} from '../../lib/content/related';
 import {getJournalBySlug,getJournalEntries,getSiteSettings} from '../../lib/data';
 import {breadcrumbSchema} from '../../lib/seo/schema';
@@ -13,8 +15,8 @@ const [entry,settings,journals]=await Promise.all([
   getJournalEntries()
 ]);
 if(!entry) return Astro.rewrite('/404');
-const journalImages=entry.body.filter((item)=>item.type==='image');
-const journalParagraphs=entry.body.filter((item)=>item.type==='paragraph');
+const journalImages=entry.figures;
+const bodyHtml=renderMarkdown(entry.body);
 const relatedEntries=rankRelated(entry,journals.filter((item)=>item.slug!==entry.slug),(item)=>item.tags).map((item)=>({
   href:`/journal/${item.slug}`,
   title:item.title,
@@ -40,7 +42,7 @@ const articleSchema:Record<string,unknown>={
   author:{'@id':`${new URL('/',Astro.site)}#person`},
   isPartOf:{'@id':`${new URL('/',Astro.site)}#website`},
   keywords:entry.tags.join(', '),
-  articleBody:journalParagraphs.map((paragraph)=>paragraph.text).join('\n\n'),
+  articleBody:extractReadableText(entry.body),
   inLanguage:'en-IN',
   isAccessibleForFree:true
 };
@@ -63,7 +65,7 @@ const jsonLd=[
     <article class="section article detail-main">
       <SectionHeader number="01" title="Transmission"/>
       {journalImages.length>0&&<ImageCarousel images={journalImages} label="JOURNAL FIGURES" client:visible />}
-      {journalParagraphs.map((paragraph)=><p>{paragraph.text}</p>)}
+      <div class="markdown" set:html={bodyHtml}/>
       <div class="detail-share"><SharePanel title={entry.title} path={Astro.url.pathname}/></div>
     </article>
 

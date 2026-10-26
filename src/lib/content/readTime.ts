@@ -4,7 +4,24 @@ type TextLike =
   | string
   | { type?: string; _type?: string; text?: string; children?: Array<{ text?: string }> };
 
+function stripMarkdown(value: string): string {
+  return value
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`[^`]*`/g, ' ')
+    .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)]\([^)]*\)/g, '$1')
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/^\s{0,3}>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+\.\s+/gm, '')
+    .replace(/[*_~]/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function extractReadableText(body: unknown): string {
+  if (typeof body === 'string') return stripMarkdown(body);
   if (!Array.isArray(body)) return '';
 
   return body

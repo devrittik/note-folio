@@ -78,27 +78,20 @@ projects.forEach((project, index) => {
     ...project,
     order: index + 1,
     slug: { _type: 'slug', current: project.slug },
-    system: project.system.map((item, itemIndex) => ({ ...item, _type: 'object', _key: key('system', itemIndex) })),
-    notes: project.notes.map((item, itemIndex) => ({ ...item, _type: 'object', _key: key('note', itemIndex) }))
+    screenshots: [],
+    body: project.body
   });
 });
 
 journals.forEach((entry) => {
-  const body = entry.body
-    .filter((item) => item.type === 'paragraph')
-    .map((item, index) => ({
-      _type: 'journalTextBlock',
-      _key: key('body', index),
-      text: item.type === 'paragraph' ? item.text : ''
-    }));
-
   transaction.createOrReplace({
     _id: `journal-${entry.slug}`,
     _type: 'journalEntry',
     ...entry,
-    readTime: calculateReadTime(body),
+    readTime: calculateReadTime(entry.body),
     schemaType: 'Article',
-    body,
+    figures: [],
+    body: entry.body,
     slug: { _type: 'slug', current: entry.slug }
   });
 });

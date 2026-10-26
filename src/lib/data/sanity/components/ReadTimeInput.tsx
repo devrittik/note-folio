@@ -21,7 +21,7 @@ export function ReadTimeInput(props: NumberInputProps) {
         </Text>
       </Card>
       <Text muted size={1}>
-        Generated automatically from journal text at 200 words per minute.
+        Generated automatically from the Markdown body at 200 words per minute.
       </Text>
     </Stack>
   );

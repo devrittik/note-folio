@@ -1,6 +1,7 @@
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
 import { visionTool } from '@sanity/vision';
+import { markdownSchema } from 'sanity-plugin-markdown';
 import { schemaTypes } from './src/lib/data/sanity/schemaTypes';
 
 // Sanity project IDs and dataset names are public identifiers used by Studio.
@@ -34,6 +35,7 @@ export default defineConfig({
             S.documentTypeListItem('journalEntry').title('Journal entries')
           ])
     }),
+    markdownSchema(),
     visionTool()
   ],
   schema: { types: schemaTypes }
