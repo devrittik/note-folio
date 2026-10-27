@@ -36,7 +36,7 @@
     "mongodb": "^6.20.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "sanitize-html": "^2.18.1",
+    "sanitize-html": "^2.14.0",
     "sanity": "^4.22.1",
     "sanity-plugin-markdown": "^7.0.4",
     "simple-icons": "^16.0.0",
