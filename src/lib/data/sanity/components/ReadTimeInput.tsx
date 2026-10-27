@@ -8,10 +8,9 @@ export function ReadTimeInput(props: NumberInputProps) {
   const generatedReadTime = calculateReadTime(body);
 
   useEffect(() => {
-    if (props.value !== generatedReadTime) {
-      props.onChange(PatchEvent.from(set(generatedReadTime)));
-    }
-  }, [generatedReadTime, props.value, props.onChange]);
+    if (props.readOnly || props.value === generatedReadTime) return;
+    props.onChange(PatchEvent.from(set(generatedReadTime)));
+  }, [generatedReadTime, props.readOnly, props.value, props.onChange]);
 
   return (
     <Stack gap={2}>
